@@ -1,0 +1,12 @@
+---
+description: Reglas de negocio de Arcade Vault — diseño de interfaz
+alwaysApply: true
+---
+
+# Reglas de negocio
+
+## Diseño de interfaz de usuario
+
+- **Siempre** usa el skill `/frontend-design` al diseñar, rediseñar o implementar la interfaz de usuario.
+- Antes de escribir o modificar UI (layout, tipografía, color, componentes visuales, páginas, estilos), lee y sigue `frontend-design`.
+- No improvises la dirección visual sin aplicar ese skill: paleta, tipografía, layout y principios deben salir de su proceso (plan → revisión → build → crítica).
