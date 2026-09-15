@@ -101,18 +101,18 @@ Cada paso deja el sistema funcional (compilable y navegable).
 
 ## Criterios de aceptación
 
-- [ ] `npm run dev` arranca sin errores de compilación ni de consola
-- [ ] `/` muestra el hero con título "ARCADE VAULT" y el grid con los 8 juegos
-- [ ] Los chips de categoría filtran el grid en tiempo real
-- [ ] La búsqueda filtra juegos por nombre en tiempo real (sin distinción mayúsculas/minúsculas)
-- [ ] Click en una tarjeta navega a `/games/[id]`
-- [ ] `/games/[id]` muestra cover, tags, strip de 3 stats y leaderboard lateral con 10 entradas
-- [ ] El botón "JUGAR AHORA" en `/games/[id]` navega a `/games/[id]/play`
-- [ ] `/games/[id]/play` muestra HUD con 4 stats, pantalla CRT con animación CSS y 3 botones (Pausa / Fin / Salir)
-- [ ] El botón Pausa alterna el overlay "EN PAUSA" sobre la pantalla CRT
-- [ ] El botón Fin muestra el modal de Game Over con puntuación y campo de nombre
-- [ ] Guardar puntuación en el modal muestra el toast typewriter "▸ PUNTUACIÓN GUARDADA_"
-- [ ] `/auth` muestra los dos tabs, el formulario, el botón de invitado y los botones sociales
+- [x] `npm run dev` arranca sin errores de compilación ni de consola
+- [x] `/` muestra el hero con título "ARCADE VAULT" y el grid con los 8 juegos
+- [x] Los chips de categoría filtran el grid en tiempo real
+- [x] La búsqueda filtra juegos por nombre en tiempo real (sin distinción mayúsculas/minúsculas)
+- [x] Click en una tarjeta navega a `/games/[id]`
+- [x] `/games/[id]` muestra cover, tags, strip de 3 stats y leaderboard lateral con 10 entradas
+- [x] El botón "JUGAR AHORA" en `/games/[id]` navega a `/games/[id]/play`
+- [x] `/games/[id]/play` muestra HUD con 4 stats, pantalla CRT con animación CSS y 3 botones (Pausa / Fin / Salir)
+- [x] El botón Pausa alterna el overlay "EN PAUSA" sobre la pantalla CRT
+- [x] El botón Fin muestra el modal de Game Over con puntuación y campo de nombre
+- [x] Guardar puntuación en el modal muestra el toast typewriter "▸ PUNTUACIÓN GUARDADA_"
+- [x] `/auth` muestra los dos tabs, el formulario, el botón de invitado y los botones sociales
 - [ ] Al hacer submit en `/auth`, el Nav muestra el nombre del usuario (ej. "PLAYER1 ▾")
 - [ ] "JUGAR COMO INVITADO" navega a `/` sin usuario en sesión
 - [ ] Click en el nombre del usuario en el Nav cierra la sesión
