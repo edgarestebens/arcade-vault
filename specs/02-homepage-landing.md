@@ -1,6 +1,6 @@
 # SPEC 02 — Homepage Landing
 
-**Estado:** Aprobado  
+**Estado:** Implementado  
 **Depende de:** SPEC 01  
 **Fecha:** 2026-09-15  
 **Objetivo:** Implementar el homepage/landing de Arcade Vault según `references/templates/home-about/`, moviendo la Biblioteca a `/biblioteca` y actualizando la navegación.
@@ -101,21 +101,21 @@ Cada paso deja el sistema funcional (compilable y navegable).
 
 ## Criterios de aceptación
 
-- [ ] `npm run dev` arranca sin errores de compilación
-- [ ] `/` muestra el hero del landing (eyebrow "INSERTA UNA MONEDA", título en 3 líneas, 2 CTAs, siluetas decorativas)
-- [ ] CTA "EXPLORAR JUEGOS" e "INSERTAR MONEDA" / "VER TODOS LOS JUEGOS" navegan a `/biblioteca`
-- [ ] CTA "CREAR CUENTA" y "EMPEZAR GRATIS" navegan a `/auth`
-- [ ] `/biblioteca` muestra la Biblioteca existente (búsqueda, chips, grid de 8 juegos)
-- [ ] El Nav tiene links Inicio, Biblioteca y Salón de la Fama; el logo lleva a `/`
-- [ ] En `/` el link Inicio está activo; en `/biblioteca` y `/games/[id]` el link Biblioteca está activo
-- [ ] La sección de preview muestra 6 `MiniCard`; click en una navega a `/games/[id]`
-- [ ] Las secciones ¿Por qué…?, stats, actividad en vivo, precios/FAQ y CTA final están presentes y visibles
-- [ ] Al hacer scroll, los bloques `.reveal` pasan a `.reveal.in` (IntersectionObserver)
-- [ ] "VER SALÓN →" en actividad navega a `/hall-of-fame`
-- [ ] "VOLVER AL VAULT" en detalle y salidas del player van a `/biblioteca`
-- [ ] Tras submit en `/auth` o "JUGAR COMO INVITADO", la app navega a `/`
-- [ ] No existe ruta `/about` ni link "Acerca de" en el Nav
-- [ ] `app/data/home.ts` existe y se re-exporta desde `app/data/index.ts`
+- [x] `npm run dev` arranca sin errores de compilación
+- [x] `/` muestra el hero del landing (eyebrow "INSERTA UNA MONEDA", título en 3 líneas, 2 CTAs, siluetas decorativas)
+- [x] CTA "EXPLORAR JUEGOS" e "INSERTAR MONEDA" / "VER TODOS LOS JUEGOS" navegan a `/biblioteca`
+- [x] CTA "CREAR CUENTA" y "EMPEZAR GRATIS" navegan a `/auth`
+- [x] `/biblioteca` muestra la Biblioteca existente (búsqueda, chips, grid de 8 juegos)
+- [x] El Nav tiene links Inicio, Biblioteca y Salón de la Fama; el logo lleva a `/`
+- [x] En `/` el link Inicio está activo; en `/biblioteca` y `/games/[id]` el link Biblioteca está activo
+- [x] La sección de preview muestra 6 `MiniCard`; click en una navega a `/games/[id]`
+- [x] Las secciones ¿Por qué…?, stats, actividad en vivo, precios/FAQ y CTA final están presentes y visibles
+- [x] Al hacer scroll, los bloques `.reveal` pasan a `.reveal.in` (IntersectionObserver)
+- [x] "VER SALÓN →" en actividad navega a `/hall-of-fame`
+- [x] "VOLVER AL VAULT" en detalle y salidas del player van a `/biblioteca`
+- [x] Tras submit en `/auth` o "JUGAR COMO INVITADO", la app navega a `/`
+- [x] No existe ruta `/about` ni link "Acerca de" en el Nav
+- [x] `app/data/home.ts` existe y se re-exporta desde `app/data/index.ts`
 
 ---
 

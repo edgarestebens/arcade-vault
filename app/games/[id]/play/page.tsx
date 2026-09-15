@@ -149,7 +149,7 @@ export default function PlayPage() {
                     <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
                       ← DETALLE
                     </button>
-                    <button className="btn ghost" onClick={() => router.push('/')}>
+                    <button className="btn ghost" onClick={() => router.push('/biblioteca')}>
                       ⌂ VAULT
                     </button>
                   </div>
@@ -162,7 +162,7 @@ export default function PlayPage() {
                   <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
                     ← DETALLE
                   </button>
-                  <button className="btn ghost" onClick={() => router.push('/')}>
+                  <button className="btn ghost" onClick={() => router.push('/biblioteca')}>
                     ⌂ VAULT
                   </button>
                 </div>

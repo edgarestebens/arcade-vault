@@ -66,7 +66,7 @@ export default async function GameDetail({ params }: Props) {
             <Link href={`/games/${game.id}/play`} className="btn pulse">
               ▶ JUGAR AHORA
             </Link>
-            <Link href="/" className="btn ghost">
+            <Link href="/biblioteca" className="btn ghost">
               ← VOLVER AL VAULT
             </Link>
           </div>
