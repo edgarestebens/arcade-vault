@@ -15,30 +15,26 @@ export default function Home() {
   })
 
   return (
-    <>
-      {/* Hero */}
+    <div className="fade-in">
       <section className="av-hero">
         <h1 className="flicker">ARCADE VAULT</h1>
-        <p className="sub">
-          INSERT COIN TO CONTINUE <span className="blink">_</span>
-        </p>
+        <div className="sub">
+          INSERTA UNA MONEDA PARA JUGAR <span className="blink">_</span>
+        </div>
       </section>
 
-      {/* Filtros */}
       <div className="av-filters">
-        {/* Búsqueda */}
         <div className="av-search">
           <span className="ico">⌕</span>
           <input
             type="text"
-            placeholder="BUSCAR JUEGO..."
+            placeholder="Buscar un juego por nombre…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Buscar juego"
+            aria-label="Buscar un juego por nombre"
           />
         </div>
 
-        {/* Chips de categoría */}
         <div className="av-chips">
           {CATS.map((cat) => (
             <button
@@ -52,16 +48,19 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Grid de juegos */}
       <div className="av-grid">
-        {filtered.length > 0 ? (
-          filtered.map((game) => <GameCard key={game.id} game={game} />)
-        ) : (
-          <p style={{ color: 'var(--ink-faint)', fontFamily: 'var(--pixel)', fontSize: 11, gridColumn: '1/-1', textAlign: 'center', padding: '48px 0' }}>
-            SIN RESULTADOS
-          </p>
+        {filtered.map((game) => (
+          <GameCard key={game.id} game={game} />
+        ))}
+        {filtered.length === 0 && (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 80, color: 'var(--ink-faint)' }}>
+            <div className="pixel" style={{ fontSize: 14, color: 'var(--magenta)', marginBottom: 12 }}>
+              NO HAY RESULTADOS
+            </div>
+            <div>Intenta otra búsqueda o categoría.</div>
+          </div>
         )}
       </div>
-    </>
+    </div>
   )
 }

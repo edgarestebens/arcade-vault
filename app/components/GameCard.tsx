@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useRef } from 'react'
 import type { Game } from '../data'
 
 interface Props {
@@ -9,55 +10,64 @@ interface Props {
 
 export function GameCard({ game }: Props) {
   const router = useRouter()
+  const tiltRef = useRef<HTMLDivElement>(null)
 
   function handleTilt(e: React.MouseEvent<HTMLDivElement>) {
-    const card = e.currentTarget
-    const rect = card.getBoundingClientRect()
-    const x = (e.clientX - rect.left) / rect.width  - 0.5
-    const y = (e.clientY - rect.top)  / rect.height - 0.5
-    card.style.transform = `perspective(600px) rotateY(${x * 14}deg) rotateX(${-y * 10}deg) translateY(-6px)`
+    const el = tiltRef.current
+    if (!el) return
+    const r = el.getBoundingClientRect()
+    const px = (e.clientX - r.left) / r.width - 0.5
+    const py = (e.clientY - r.top) / r.height - 0.5
+    el.style.transform = `translateY(-6px) rotateX(${-py * 6}deg) rotateY(${px * 8}deg)`
   }
 
-  function handleTiltReset(e: React.MouseEvent<HTMLDivElement>) {
-    e.currentTarget.style.transform = ''
+  function handleTiltReset() {
+    const el = tiltRef.current
+    if (!el) return
+    el.style.transform = ''
   }
 
-  function handleClick() {
+  function handleSelect() {
     router.push(`/games/${game.id}`)
   }
 
+  const btnClass =
+    game.color === 'magenta' ? 'btn magenta' : game.color === 'yellow' ? 'btn yellow' : 'btn'
+
   return (
     <div
-      className="card fade-in"
-      onClick={handleClick}
+      ref={tiltRef}
+      className="card"
+      onClick={handleSelect}
       onMouseMove={handleTilt}
       onMouseLeave={handleTiltReset}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+      onKeyDown={(e) => e.key === 'Enter' && handleSelect()}
       aria-label={`Jugar ${game.title}`}
     >
-      {/* Portada CSS */}
       <div className="cover">
         <div className={`cover-bg ${game.cover}`} />
-        <span className="label">{game.cat}</span>
+        <div className="label">{game.cat}</div>
       </div>
 
-      {/* Metadatos */}
       <div className="meta">
-        <div className={`title neon-${game.color}`}>{game.title}</div>
+        <div className="title">{game.title}</div>
         <div className="desc">{game.short}</div>
 
         <div className="row">
           <div className="score-badge">
-            <span>MEJOR</span>
-            <b>{game.best.toLocaleString()}</b>
+            <span>MEJOR PUNTUACIÓN</span>
+            <b>{game.best.toLocaleString('es-ES')}</b>
           </div>
           <button
-            className={`btn ${game.color === 'cyan' ? '' : game.color}`}
-            onClick={(e) => { e.stopPropagation(); router.push(`/games/${game.id}/play`) }}
+            className={btnClass}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleSelect()
+            }}
           >
-            ▶ JUGAR
+            JUGAR
           </button>
         </div>
       </div>

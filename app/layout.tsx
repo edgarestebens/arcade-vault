@@ -43,8 +43,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <Providers>
             <Nav />
             <main className="av-main">{children}</main>
-            <footer style={{ textAlign: 'center', padding: '24px', fontFamily: 'var(--mono)', fontSize: '11px', color: 'var(--ink-faint)', borderTop: '1px solid var(--line)' }}>
-              © 2026 ARCADE VAULT
+            <footer style={{ borderTop: '1px solid var(--line)', padding: '20px 32px', textAlign: 'center', color: 'var(--ink-faint)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.16em' }}>
+              © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
             </footer>
           </Providers>
         </div>
