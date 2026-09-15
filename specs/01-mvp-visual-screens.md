@@ -1,6 +1,6 @@
 # SPEC 01 — MVP Visual Screens
 
-**Estado:** Aprobado  
+**Estado:** Implementado  
 **Depende de:** —  
 **Fecha:** 2026-09-15  
 **Objetivo:** Implementar todas las pantallas visuales del MVP de Arcade Vault en Next.js App Router con datos ficticios, estilos retro neon y sin lógica de juego real.
