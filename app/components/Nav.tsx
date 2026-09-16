@@ -15,6 +15,7 @@ export function Nav() {
   const isBiblioteca =
     pathname === '/biblioteca' || pathname.startsWith('/games/')
   const isSalon = pathname === '/hall-of-fame'
+  const isAbout = pathname === '/about'
   const isAuth = pathname === '/auth'
 
   function handleLogout() {
@@ -47,6 +48,9 @@ export function Nav() {
           </Link>
           <Link href="/hall-of-fame" className={isSalon ? 'active' : ''}>
             Salón de la Fama
+          </Link>
+          <Link href="/about" className={isAbout ? 'active' : ''}>
+            Acerca de
           </Link>
         </div>
 
@@ -105,6 +109,13 @@ export function Nav() {
           onClick={() => setMenuOpen(false)}
         >
           Salón de la Fama
+        </Link>
+        <Link
+          href="/about"
+          className={isAbout ? 'active' : ''}
+          onClick={() => setMenuOpen(false)}
+        >
+          Acerca de
         </Link>
         <Link
           href="/auth"
