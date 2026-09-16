@@ -1,6 +1,6 @@
 # SPEC 03 — About page y contacto con Resend
 
-> **Estado:** Aprobado  
+> **Estado:** Implementado  
 > **Depende de:** SPEC 02  
 > **Fecha:** 2026-09-16  
 > **Objetivo:** Implementar la página Acerca de según `references/templates/home-about/` y el envío real del formulario de contacto vía Resend.

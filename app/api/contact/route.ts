@@ -44,7 +44,7 @@ export async function POST(request: Request) {
 
   try {
     const resend = new Resend(apiKey)
-    const { error } = await resend.emails.send({
+    const payload = {
       from,
       to,
       replyTo: email,
@@ -53,17 +53,27 @@ export async function POST(request: Request) {
       html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p>
 <p><strong>Email:</strong> ${escapeHtml(email)}</p>
 <p>${escapeHtml(msg).replace(/\n/g, '<br>')}</p>`,
-    })
-
-    if (error) {
-      return NextResponse.json(
-        { ok: false, error: 'Failed to send message' },
-        { status: 500 },
-      )
     }
 
-    return NextResponse.json({ ok: true })
-  } catch {
+    let lastError: unknown = null
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const { error } = await resend.emails.send(payload)
+      if (!error) {
+        return NextResponse.json({ ok: true })
+      }
+      lastError = error
+      if (attempt < 3) {
+        await new Promise((r) => setTimeout(r, 400 * attempt))
+      }
+    }
+
+    console.error('[contact] Resend failed after retries:', lastError)
+    return NextResponse.json(
+      { ok: false, error: 'Failed to send message' },
+      { status: 500 },
+    )
+  } catch (err) {
+    console.error('[contact] Resend threw:', err)
     return NextResponse.json(
       { ok: false, error: 'Failed to send message' },
       { status: 500 },
