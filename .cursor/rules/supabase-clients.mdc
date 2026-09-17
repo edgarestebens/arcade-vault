@@ -1,0 +1,31 @@
+---
+description: Scaffolding de clientes Supabase (browser/server) y env públicas
+globs: lib/supabase/**,.env.example
+alwaysApply: false
+---
+
+# Clientes Supabase
+
+## Estructura
+
+- Exactamente dos helpers separados en `lib/supabase/`:
+  - `client.ts` — browser con `createBrowserClient` (`@supabase/ssr`)
+  - `server.ts` — Server Components / Route Handlers con `createServerClient` y cookies del request
+- No fusionar browser y server en un solo módulo.
+- Seguir el patrón oficial actual de `@supabase/ssr` para App Router; verificar docs antes de inventar APIs.
+
+## Variables de entorno
+
+```env
+# ✅ GOOD — solo claves públicas
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+```env
+# ❌ BAD — nunca en este repo (código, .env.example ni comentarios de setup)
+SUPABASE_SERVICE_ROLE_KEY=
+```
+
+- Valores reales solo en `.env.local` (no commitear).
+- Sin exports de admin client ni wrappers que lean `service_role`.

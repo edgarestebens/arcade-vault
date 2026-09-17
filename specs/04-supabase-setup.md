@@ -1,6 +1,6 @@
 # SPEC 04 — Supabase setup (client + server)
 
-> **Estado:** Aprobado  
+> **Estado:** Implementado  
 > **Depende de:** SPEC 01, SPEC 03  
 > **Fecha:** 2026-09-17  
 > **Objetivo:** Dejar listos en Next.js App Router los clientes de Supabase (`client.ts` y `server.ts`) y las variables de entorno públicas, sin schema ni cableado de auth.
@@ -77,14 +77,14 @@ Cada paso deja el sistema compilable y navegable (comportamiento de la app igual
 
 ## Criterios de aceptación
 
-- [ ] Existen exactamente los helpers `lib/supabase/client.ts` y `lib/supabase/server.ts` (archivos separados)
-- [ ] Están instalados `@supabase/supabase-js` y `@supabase/ssr`
-- [ ] `.env.example` documenta solo `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- [ ] No aparece `SUPABASE_SERVICE_ROLE_KEY` ni `service_role` en código, `.env.example` ni comentarios de setup de esta spec
-- [ ] No se creó ninguna tabla/schema/migración en Supabase como parte de esta spec
-- [ ] `/auth` sigue con el flujo fake de localStorage (sin llamadas a Supabase Auth)
-- [ ] `app/providers.tsx` y el resto de pantallas se comportan como antes
-- [ ] La app compila y navega sin regresiones obvias
+- [x] Existen exactamente los helpers `lib/supabase/client.ts` y `lib/supabase/server.ts` (archivos separados)
+- [x] Están instalados `@supabase/supabase-js` y `@supabase/ssr`
+- [x] `.env.example` documenta solo `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- [x] No aparece `SUPABASE_SERVICE_ROLE_KEY` ni `service_role` en código, `.env.example` ni comentarios de setup de esta spec
+- [x] No se creó ninguna tabla/schema/migración en Supabase como parte de esta spec
+- [x] `/auth` sigue con el flujo fake de localStorage (sin llamadas a Supabase Auth)
+- [x] `app/providers.tsx` y el resto de pantallas se comportan como antes
+- [x] La app compila y navega sin regresiones obvias
 
 ---
 
