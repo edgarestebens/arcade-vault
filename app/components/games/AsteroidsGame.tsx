@@ -1,9 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-
-const W = 800
-const H = 600
+import { W, H } from './asteroids'
+// Entity modules (Ship, Asteroid, Bullet, Particle, PowerUp) live under ./asteroids — wired in step 3
 
 export type AsteroidsGameProps = {
   paused: boolean
