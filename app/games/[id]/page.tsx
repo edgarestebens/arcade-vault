@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { GAMES, seededScores } from '../../data'
+import { GAMES } from '../../data'
+import { GameLeaderboard } from '../../components/GameLeaderboard'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -14,8 +15,6 @@ export default async function GameDetail({ params }: Props) {
   const { id } = await params
   const game = GAMES.find((g) => g.id === id)
   if (!game) notFound()
-
-  const scores = seededScores(game.title.charCodeAt(0) + game.title.length, 10)
 
   const difficulties: Record<string, string> = {
     ARCADE: 'MEDIA',
@@ -73,20 +72,8 @@ export default async function GameDetail({ params }: Props) {
         </div>
       </div>
 
-      {/* Columna derecha: leaderboard */}
-      <div className="leaderboard slide-in">
-        <h3>🏆 TOP 10 GLOBAL</h3>
-        {scores.map((row) => (
-          <div
-            key={row.rank}
-            className={`lb-row${row.rank === 1 ? ' top1' : row.rank === 2 ? ' top2' : row.rank === 3 ? ' top3' : ''}`}
-          >
-            <span className="rk">#{row.rank}</span>
-            <span className="pl">{row.name}</span>
-            <span className="sc">{row.score.toLocaleString()}</span>
-          </div>
-        ))}
-      </div>
+      {/* Columna derecha: leaderboard real desde Supabase */}
+      <GameLeaderboard gameId={game.id} />
     </div>
   )
 }
