@@ -5,8 +5,7 @@ import { useState, useEffect } from 'react'
 import { GAMES } from '../../../data'
 import { useUser } from '../../../providers'
 import AsteroidsGame from '../../../components/games/AsteroidsGame'
-
-const SCORE_KEY = 'av_scores'
+import { createClient } from '../../../../lib/supabase/client'
 
 export default function PlayPage() {
   const { id } = useParams<{ id: string }>()
@@ -25,6 +24,8 @@ export default function PlayPage() {
   const [sessionKey, setSessionKey] = useState(0)
   const [playerName, setPlayerName] = useState(user?.name ?? '')
   const [saved, setSaved] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   // Simulación de puntuación creciente (solo placeholder; ASTEROID usa score real)
   useEffect(() => {
@@ -35,17 +36,26 @@ export default function PlayPage() {
     return () => clearInterval(interval)
   }, [isAsteroid, paused, gameOver, level])
 
-  function handleSaveScore() {
-    if (!playerName.trim()) return
-    const entry = {
-      game: id,
-      name: playerName.slice(0, 10).toUpperCase(),
-      score,
-      date: new Date().toLocaleDateString('es-ES'),
+  async function handleSaveScore() {
+    if (!playerName.trim() || saving) return
+    setSaving(true)
+    setSaveError(null)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.from('scores').insert({
+        game_id: id,
+        player_name: playerName.slice(0, 10).toUpperCase(),
+        score,
+      })
+      if (error) throw error
+      setSaved(true)
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err)
+      console.error('[play] save score error:', msg)
+      setSaveError('Error al guardar. Inténtalo de nuevo.')
+    } finally {
+      setSaving(false)
     }
-    const prev = JSON.parse(localStorage.getItem(SCORE_KEY) ?? '[]')
-    localStorage.setItem(SCORE_KEY, JSON.stringify([entry, ...prev]))
-    setSaved(true)
   }
 
   function handleFin() {
@@ -66,6 +76,7 @@ export default function PlayPage() {
   function handlePlayAgain() {
     setGameOver(false)
     setSaved(false)
+    setSaveError(null)
     setForceEnd(false)
     setPaused(false)
     setScore(0)
@@ -202,10 +213,15 @@ export default function PlayPage() {
                       outline: 0, fontFamily: 'var(--mono)', color: 'var(--ink)',
                     }}
                   />
-                  <button className="btn" onClick={handleSaveScore}>
-                    GUARDAR
+                  <button className="btn" onClick={handleSaveScore} disabled={saving}>
+                    {saving ? '…' : 'GUARDAR'}
                   </button>
                 </div>
+                {saveError && (
+                  <div style={{ color: 'var(--magenta)', fontFamily: 'var(--mono)', fontSize: 12, marginBottom: 8 }}>
+                    ✕ {saveError}
+                  </div>
+                )}
                 {modalActions}
               </>
             ) : (

@@ -1,6 +1,6 @@
 # SPEC 06 — Leaderboard y catálogo de juegos
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 04, SPEC 05
 > **Fecha:** 2026-09-21
 > **Objetivo:** Guardar las puntuaciones de ASTEROID en Supabase, mostrar el top 10 por juego en `/hall-of-fame`, y mejorar `/games` como catálogo visual con tarjetas de juego.

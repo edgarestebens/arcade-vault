@@ -1,16 +1,12 @@
 import { createBrowserClient } from "@supabase/ssr";
 
-function requirePublicEnv(name: "NEXT_PUBLIC_SUPABASE_URL" | "NEXT_PUBLIC_SUPABASE_ANON_KEY") {
-  const value = process.env[name];
-  if (!value) {
-    throw new Error(`Missing environment variable: ${name}`);
-  }
-  return value;
-}
-
+// IMPORTANTE: usar acceso literal (no computed) para que Next.js
+// inyecte las variables en el bundle del browser correctamente.
 export function createClient() {
-  return createBrowserClient(
-    requirePublicEnv("NEXT_PUBLIC_SUPABASE_URL"),
-    requirePublicEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
-  );
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    throw new Error("Faltan variables de entorno de Supabase (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY)");
+  }
+  return createBrowserClient(url, key);
 }
