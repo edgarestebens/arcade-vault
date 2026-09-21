@@ -220,42 +220,12 @@ export function createAsteroidsSession(callbacks: AsteroidsSessionCallbacks) {
     if (asteroids.length === 0) nextLevel()
   }
 
-  function drawLifeIcon(c: CanvasRenderingContext2D, x: number, y: number) {
-    c.save()
-    c.translate(x, y)
-    c.rotate(-Math.PI / 2)
-    c.strokeStyle = '#fff'
-    c.lineWidth = 1.2
-    c.lineJoin = 'round'
-    c.beginPath()
-    c.moveTo(9, 0)
-    c.lineTo(-6, -5)
-    c.lineTo(-3, 0)
-    c.lineTo(-6, 5)
-    c.closePath()
-    c.stroke()
-    c.restore()
-  }
-
-  function drawHUD(c: CanvasRenderingContext2D) {
-    c.fillStyle = '#fff'
-    c.font = '15px monospace'
-
+  function drawTripleShotHint(c: CanvasRenderingContext2D) {
+    if (ship.tripleShot <= 0) return
     c.textAlign = 'left'
-    c.fillText(`SCORE  ${score}`, 14, 26)
-
-    c.textAlign = 'center'
-    c.fillText(`NIVEL ${level}`, W / 2, 26)
-
-    for (let i = 0; i < lives; i++) {
-      drawLifeIcon(c, W - 16 - i * 22, 18)
-    }
-
-    if (ship.tripleShot > 0) {
-      c.textAlign = 'left'
-      c.fillStyle = '#0ff'
-      c.fillText(`3x  ${ship.tripleShot.toFixed(1)}s`, 14, 46)
-    }
+    c.fillStyle = '#0ff'
+    c.font = '15px monospace'
+    c.fillText(`3x  ${ship.tripleShot.toFixed(1)}s`, 14, 26)
   }
 
   function drawOverlay(c: CanvasRenderingContext2D, title: string, sub: string) {
@@ -278,7 +248,8 @@ export function createAsteroidsSession(callbacks: AsteroidsSessionCallbacks) {
     bullets.forEach((b) => b.draw(c))
     ship.draw(c)
 
-    drawHUD(c)
+    // SCORE / NIVEL / vidas viven en el HUD de la plataforma
+    drawTripleShotHint(c)
 
     if (callbacks.getPaused() && state === 'playing') {
       drawOverlay(c, 'PAUSA', '')

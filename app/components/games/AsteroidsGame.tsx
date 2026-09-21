@@ -69,7 +69,7 @@ export default function AsteroidsGame({
       ref={canvasRef}
       width={W}
       height={H}
-      style={{ display: 'block', margin: '0 auto' }}
+      style={{ display: 'block', width: '100%', height: 'auto' }}
       tabIndex={0}
       aria-label="Asteroids"
     />

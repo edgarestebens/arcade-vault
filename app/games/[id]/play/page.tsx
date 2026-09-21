@@ -14,7 +14,7 @@ export default function PlayPage() {
   const { user } = useUser()
 
   const game = GAMES.find((g) => g.id === id)
-  const isRocas = id === 'rocas'
+  const isAsteroid = id === 'asteroid'
 
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
@@ -26,14 +26,14 @@ export default function PlayPage() {
   const [playerName, setPlayerName] = useState(user?.name ?? '')
   const [saved, setSaved] = useState(false)
 
-  // Simulación de puntuación creciente (solo placeholder; ROCAS usa score real)
+  // Simulación de puntuación creciente (solo placeholder; ASTEROID usa score real)
   useEffect(() => {
-    if (isRocas || paused || gameOver) return
+    if (isAsteroid || paused || gameOver) return
     const interval = setInterval(() => {
       setScore((s) => s + 10 + level * 5)
     }, 500)
     return () => clearInterval(interval)
-  }, [isRocas, paused, gameOver, level])
+  }, [isAsteroid, paused, gameOver, level])
 
   function handleSaveScore() {
     if (!playerName.trim()) return
@@ -50,14 +50,14 @@ export default function PlayPage() {
 
   function handleFin() {
     if (gameOver) return
-    if (isRocas) {
+    if (isAsteroid) {
       setForceEnd(true)
     } else {
       setGameOver(true)
     }
   }
 
-  function handleRocasGameOver(finalScore: number) {
+  function handleAsteroidGameOver(finalScore: number) {
     setScore(finalScore)
     setGameOver(true)
     setPaused(false)
@@ -97,7 +97,7 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="av-player fade-in">
+    <div className={`av-player fade-in${isAsteroid ? ' av-player--game' : ''}`}>
       {/* HUD */}
       <div className="player-hud">
         <div className="hud-stat">
@@ -136,10 +136,9 @@ export default function PlayPage() {
       {/* Pantalla CRT */}
       <div className="crt">
         <div
-          className="crt-screen"
-          style={isRocas ? { display: 'flex', alignItems: 'center', justifyContent: 'center' } : undefined}
+          className={isAsteroid ? 'crt-screen crt-screen--native' : 'crt-screen'}
         >
-          {isRocas ? (
+          {isAsteroid ? (
             <AsteroidsGame
               key={sessionKey}
               paused={paused || gameOver}
@@ -148,7 +147,7 @@ export default function PlayPage() {
               onScoreChange={setScore}
               onLivesChange={setLives}
               onLevelChange={setLevel}
-              onGameOver={handleRocasGameOver}
+              onGameOver={handleAsteroidGameOver}
             />
           ) : (
             <div className="game-arena">
@@ -160,8 +159,8 @@ export default function PlayPage() {
             </div>
           )}
 
-          {/* Overlay de pausa (placeholder; ROCAS dibuja PAUSA en canvas) */}
-          {!isRocas && paused && !gameOver && (
+          {/* Overlay de pausa (placeholder; ASTEROID dibuja PAUSA en canvas) */}
+          {!isAsteroid && paused && !gameOver && (
             <div style={{
               position: 'absolute', inset: 0, zIndex: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
