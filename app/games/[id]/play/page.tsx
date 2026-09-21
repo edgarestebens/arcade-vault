@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { GAMES } from '../../../data'
 import { useUser } from '../../../providers'
+import AsteroidsGame from '../../../components/games/AsteroidsGame'
 
 const SCORE_KEY = 'av_scores'
 
@@ -13,23 +14,26 @@ export default function PlayPage() {
   const { user } = useUser()
 
   const game = GAMES.find((g) => g.id === id)
+  const isAsteroid = id === 'asteroid'
 
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
   const [level, setLevel] = useState(1)
   const [paused, setPaused] = useState(false)
   const [gameOver, setGameOver] = useState(false)
+  const [forceEnd, setForceEnd] = useState(false)
+  const [sessionKey, setSessionKey] = useState(0)
   const [playerName, setPlayerName] = useState(user?.name ?? '')
   const [saved, setSaved] = useState(false)
 
-  // Simulación de puntuación creciente
+  // Simulación de puntuación creciente (solo placeholder; ASTEROID usa score real)
   useEffect(() => {
-    if (paused || gameOver) return
+    if (isAsteroid || paused || gameOver) return
     const interval = setInterval(() => {
       setScore((s) => s + 10 + level * 5)
     }, 500)
     return () => clearInterval(interval)
-  }, [paused, gameOver, level])
+  }, [isAsteroid, paused, gameOver, level])
 
   function handleSaveScore() {
     if (!playerName.trim()) return
@@ -44,6 +48,46 @@ export default function PlayPage() {
     setSaved(true)
   }
 
+  function handleFin() {
+    if (gameOver) return
+    if (isAsteroid) {
+      setForceEnd(true)
+    } else {
+      setGameOver(true)
+    }
+  }
+
+  function handleAsteroidGameOver(finalScore: number) {
+    setScore(finalScore)
+    setGameOver(true)
+    setPaused(false)
+  }
+
+  function handlePlayAgain() {
+    setGameOver(false)
+    setSaved(false)
+    setForceEnd(false)
+    setPaused(false)
+    setScore(0)
+    setLives(3)
+    setLevel(1)
+    setSessionKey((k) => k + 1)
+  }
+
+  const modalActions = (
+    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 18, flexWrap: 'wrap' }}>
+      <button className="btn" onClick={handlePlayAgain}>
+        ▶ JUGAR DE NUEVO
+      </button>
+      <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
+        ← DETALLE
+      </button>
+      <button className="btn ghost" onClick={() => router.push('/biblioteca')}>
+        ⌂ VAULT
+      </button>
+    </div>
+  )
+
   if (!game) {
     return (
       <div style={{ textAlign: 'center', padding: 64, fontFamily: 'var(--pixel)', color: 'var(--ink-faint)' }}>
@@ -53,7 +97,7 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="av-player fade-in">
+    <div className={`av-player fade-in${isAsteroid ? ' av-player--game' : ''}`}>
       {/* HUD */}
       <div className="player-hud">
         <div className="hud-stat">
@@ -66,17 +110,21 @@ export default function PlayPage() {
         </div>
         <div className="hud-stat lives">
           <span className="l">VIDAS</span>
-          <span className="v">{'♥ '.repeat(lives).trim()}</span>
+          <span className="v">{'♥ '.repeat(Math.max(lives, 0)).trim() || '—'}</span>
         </div>
         <div className="hud-stat level">
           <span className="l">NIVEL</span>
           <span className="v">{String(level).padStart(2, '0')}</span>
         </div>
         <div className="hud-actions">
-          <button className="btn" onClick={() => setPaused((p) => !p)}>
+          <button
+            className="btn"
+            disabled={gameOver}
+            onClick={() => setPaused((p) => !p)}
+          >
             {paused ? '▶ REANUDAR' : '⏸ PAUSA'}
           </button>
-          <button className="btn yellow" onClick={() => { setGameOver(true) }}>
+          <button className="btn yellow" disabled={gameOver} onClick={handleFin}>
             ⬛ FIN
           </button>
           <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
@@ -87,18 +135,32 @@ export default function PlayPage() {
 
       {/* Pantalla CRT */}
       <div className="crt">
-        <div className="crt-screen">
-          {/* Animación CSS placeholder */}
-          <div className="game-arena">
-            <div className="grid-floor" />
-            <div className="player-ship" />
-            <div className="enemy e1" />
-            <div className="enemy e2" />
-            <div className="enemy e3" />
-          </div>
+        <div
+          className={isAsteroid ? 'crt-screen crt-screen--native' : 'crt-screen'}
+        >
+          {isAsteroid ? (
+            <AsteroidsGame
+              key={sessionKey}
+              paused={paused || gameOver}
+              forceGameOver={forceEnd}
+              acceptInput={!gameOver}
+              onScoreChange={setScore}
+              onLivesChange={setLives}
+              onLevelChange={setLevel}
+              onGameOver={handleAsteroidGameOver}
+            />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor" />
+              <div className="player-ship" />
+              <div className="enemy e1" />
+              <div className="enemy e2" />
+              <div className="enemy e3" />
+            </div>
+          )}
 
-          {/* Overlay de pausa */}
-          {paused && (
+          {/* Overlay de pausa (placeholder; ASTEROID dibuja PAUSA en canvas) */}
+          {!isAsteroid && paused && !gameOver && (
             <div style={{
               position: 'absolute', inset: 0, zIndex: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -144,28 +206,12 @@ export default function PlayPage() {
                     GUARDAR
                   </button>
                 </div>
-                {saved === false && (
-                  <div className="modal .actions" style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 18, flexWrap: 'wrap' }}>
-                    <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
-                      ← DETALLE
-                    </button>
-                    <button className="btn ghost" onClick={() => router.push('/biblioteca')}>
-                      ⌂ VAULT
-                    </button>
-                  </div>
-                )}
+                {modalActions}
               </>
             ) : (
               <>
                 <span className="toast-saved">▸ PUNTUACIÓN GUARDADA_</span>
-                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' }}>
-                  <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
-                    ← DETALLE
-                  </button>
-                  <button className="btn ghost" onClick={() => router.push('/biblioteca')}>
-                    ⌂ VAULT
-                  </button>
-                </div>
+                {modalActions}
               </>
             )}
           </div>
