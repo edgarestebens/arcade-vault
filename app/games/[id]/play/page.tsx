@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { GAMES } from '../../../data'
 import { useUser } from '../../../providers'
+import AsteroidsGame from '../../../components/games/AsteroidsGame'
 
 const SCORE_KEY = 'av_scores'
 
@@ -13,6 +14,7 @@ export default function PlayPage() {
   const { user } = useUser()
 
   const game = GAMES.find((g) => g.id === id)
+  const isRocas = id === 'rocas'
 
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
@@ -22,14 +24,14 @@ export default function PlayPage() {
   const [playerName, setPlayerName] = useState(user?.name ?? '')
   const [saved, setSaved] = useState(false)
 
-  // Simulación de puntuación creciente
+  // Simulación de puntuación creciente (solo placeholder; ROCAS usa score real)
   useEffect(() => {
-    if (paused || gameOver) return
+    if (isRocas || paused || gameOver) return
     const interval = setInterval(() => {
       setScore((s) => s + 10 + level * 5)
     }, 500)
     return () => clearInterval(interval)
-  }, [paused, gameOver, level])
+  }, [isRocas, paused, gameOver, level])
 
   function handleSaveScore() {
     if (!playerName.trim()) return
@@ -66,7 +68,7 @@ export default function PlayPage() {
         </div>
         <div className="hud-stat lives">
           <span className="l">VIDAS</span>
-          <span className="v">{'♥ '.repeat(lives).trim()}</span>
+          <span className="v">{'♥ '.repeat(Math.max(lives, 0)).trim() || '—'}</span>
         </div>
         <div className="hud-stat level">
           <span className="l">NIVEL</span>
@@ -87,18 +89,32 @@ export default function PlayPage() {
 
       {/* Pantalla CRT */}
       <div className="crt">
-        <div className="crt-screen">
-          {/* Animación CSS placeholder */}
-          <div className="game-arena">
-            <div className="grid-floor" />
-            <div className="player-ship" />
-            <div className="enemy e1" />
-            <div className="enemy e2" />
-            <div className="enemy e3" />
-          </div>
+        <div
+          className="crt-screen"
+          style={isRocas ? { display: 'flex', alignItems: 'center', justifyContent: 'center' } : undefined}
+        >
+          {isRocas ? (
+            <AsteroidsGame
+              paused={paused}
+              onScoreChange={setScore}
+              onLivesChange={setLives}
+              onLevelChange={setLevel}
+              onGameOver={(finalScore) => {
+                setScore(finalScore)
+              }}
+            />
+          ) : (
+            <div className="game-arena">
+              <div className="grid-floor" />
+              <div className="player-ship" />
+              <div className="enemy e1" />
+              <div className="enemy e2" />
+              <div className="enemy e3" />
+            </div>
+          )}
 
-          {/* Overlay de pausa */}
-          {paused && (
+          {/* Overlay de pausa (placeholder; ROCAS dibuja PAUSA en canvas) */}
+          {!isRocas && paused && (
             <div style={{
               position: 'absolute', inset: 0, zIndex: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
