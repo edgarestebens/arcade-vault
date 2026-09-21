@@ -20,3 +20,4 @@ export {
   pointsForAsteroidSize,
   type KeyMap,
 } from './entities'
+export { createAsteroidsSession, type AsteroidsSessionCallbacks, type GameState } from './session'
