@@ -21,6 +21,8 @@ export default function PlayPage() {
   const [level, setLevel] = useState(1)
   const [paused, setPaused] = useState(false)
   const [gameOver, setGameOver] = useState(false)
+  const [forceEnd, setForceEnd] = useState(false)
+  const [sessionKey, setSessionKey] = useState(0)
   const [playerName, setPlayerName] = useState(user?.name ?? '')
   const [saved, setSaved] = useState(false)
 
@@ -45,6 +47,46 @@ export default function PlayPage() {
     localStorage.setItem(SCORE_KEY, JSON.stringify([entry, ...prev]))
     setSaved(true)
   }
+
+  function handleFin() {
+    if (gameOver) return
+    if (isRocas) {
+      setForceEnd(true)
+    } else {
+      setGameOver(true)
+    }
+  }
+
+  function handleRocasGameOver(finalScore: number) {
+    setScore(finalScore)
+    setGameOver(true)
+    setPaused(false)
+  }
+
+  function handlePlayAgain() {
+    setGameOver(false)
+    setSaved(false)
+    setForceEnd(false)
+    setPaused(false)
+    setScore(0)
+    setLives(3)
+    setLevel(1)
+    setSessionKey((k) => k + 1)
+  }
+
+  const modalActions = (
+    <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 18, flexWrap: 'wrap' }}>
+      <button className="btn" onClick={handlePlayAgain}>
+        ▶ JUGAR DE NUEVO
+      </button>
+      <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
+        ← DETALLE
+      </button>
+      <button className="btn ghost" onClick={() => router.push('/biblioteca')}>
+        ⌂ VAULT
+      </button>
+    </div>
+  )
 
   if (!game) {
     return (
@@ -75,10 +117,14 @@ export default function PlayPage() {
           <span className="v">{String(level).padStart(2, '0')}</span>
         </div>
         <div className="hud-actions">
-          <button className="btn" onClick={() => setPaused((p) => !p)}>
+          <button
+            className="btn"
+            disabled={gameOver}
+            onClick={() => setPaused((p) => !p)}
+          >
             {paused ? '▶ REANUDAR' : '⏸ PAUSA'}
           </button>
-          <button className="btn yellow" onClick={() => { setGameOver(true) }}>
+          <button className="btn yellow" disabled={gameOver} onClick={handleFin}>
             ⬛ FIN
           </button>
           <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
@@ -95,13 +141,14 @@ export default function PlayPage() {
         >
           {isRocas ? (
             <AsteroidsGame
-              paused={paused}
+              key={sessionKey}
+              paused={paused || gameOver}
+              forceGameOver={forceEnd}
+              acceptInput={!gameOver}
               onScoreChange={setScore}
               onLivesChange={setLives}
               onLevelChange={setLevel}
-              onGameOver={(finalScore) => {
-                setScore(finalScore)
-              }}
+              onGameOver={handleRocasGameOver}
             />
           ) : (
             <div className="game-arena">
@@ -114,7 +161,7 @@ export default function PlayPage() {
           )}
 
           {/* Overlay de pausa (placeholder; ROCAS dibuja PAUSA en canvas) */}
-          {!isRocas && paused && (
+          {!isRocas && paused && !gameOver && (
             <div style={{
               position: 'absolute', inset: 0, zIndex: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -160,28 +207,12 @@ export default function PlayPage() {
                     GUARDAR
                   </button>
                 </div>
-                {saved === false && (
-                  <div className="modal .actions" style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 18, flexWrap: 'wrap' }}>
-                    <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
-                      ← DETALLE
-                    </button>
-                    <button className="btn ghost" onClick={() => router.push('/biblioteca')}>
-                      ⌂ VAULT
-                    </button>
-                  </div>
-                )}
+                {modalActions}
               </>
             ) : (
               <>
                 <span className="toast-saved">▸ PUNTUACIÓN GUARDADA_</span>
-                <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 24, flexWrap: 'wrap' }}>
-                  <button className="btn ghost" onClick={() => router.push(`/games/${id}`)}>
-                    ← DETALLE
-                  </button>
-                  <button className="btn ghost" onClick={() => router.push('/biblioteca')}>
-                    ⌂ VAULT
-                  </button>
-                </div>
+                {modalActions}
               </>
             )}
           </div>
