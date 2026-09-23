@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react'
 import { GAMES } from '../../../data'
 import { useUser } from '../../../providers'
 import AsteroidsGame from '../../../components/games/AsteroidsGame'
+import TetrisGame from '../../../components/games/TetrisGame'
 import { createClient } from '../../../../lib/supabase/client'
 
 export default function PlayPage() {
@@ -13,7 +14,7 @@ export default function PlayPage() {
   const { user } = useUser()
 
   const game = GAMES.find((g) => g.id === id)
-  const isAsteroid = id === 'asteroid'
+  const isNativeGame = id === 'asteroid' || id === 'tetris'
 
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(3)
@@ -27,14 +28,14 @@ export default function PlayPage() {
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
-  // Simulación de puntuación creciente (solo placeholder; ASTEROID usa score real)
+  // Simulación de puntuación creciente (solo placeholder; juegos nativos usan score real)
   useEffect(() => {
-    if (isAsteroid || paused || gameOver) return
+    if (isNativeGame || paused || gameOver) return
     const interval = setInterval(() => {
       setScore((s) => s + 10 + level * 5)
     }, 500)
     return () => clearInterval(interval)
-  }, [isAsteroid, paused, gameOver, level])
+  }, [isNativeGame, paused, gameOver, level])
 
   async function handleSaveScore() {
     if (!playerName.trim() || saving) return
@@ -60,14 +61,14 @@ export default function PlayPage() {
 
   function handleFin() {
     if (gameOver) return
-    if (isAsteroid) {
+    if (isNativeGame) {
       setForceEnd(true)
     } else {
       setGameOver(true)
     }
   }
 
-  function handleAsteroidGameOver(finalScore: number) {
+  function handleNativeGameOver(finalScore: number) {
     setScore(finalScore)
     setGameOver(true)
     setPaused(false)
@@ -107,8 +108,18 @@ export default function PlayPage() {
     )
   }
 
+  const nativeProps = {
+    paused: paused || gameOver,
+    forceGameOver: forceEnd,
+    acceptInput: !gameOver,
+    onScoreChange: setScore,
+    onLivesChange: setLives,
+    onLevelChange: setLevel,
+    onGameOver: handleNativeGameOver,
+  }
+
   return (
-    <div className={`av-player fade-in${isAsteroid ? ' av-player--game' : ''}`}>
+    <div className={`av-player fade-in${isNativeGame ? ' av-player--game' : ''}`}>
       {/* HUD */}
       <div className="player-hud">
         <div className="hud-stat">
@@ -147,19 +158,12 @@ export default function PlayPage() {
       {/* Pantalla CRT */}
       <div className="crt">
         <div
-          className={isAsteroid ? 'crt-screen crt-screen--native' : 'crt-screen'}
+          className={isNativeGame ? 'crt-screen crt-screen--native' : 'crt-screen'}
         >
-          {isAsteroid ? (
-            <AsteroidsGame
-              key={sessionKey}
-              paused={paused || gameOver}
-              forceGameOver={forceEnd}
-              acceptInput={!gameOver}
-              onScoreChange={setScore}
-              onLivesChange={setLives}
-              onLevelChange={setLevel}
-              onGameOver={handleAsteroidGameOver}
-            />
+          {id === 'asteroid' ? (
+            <AsteroidsGame key={sessionKey} {...nativeProps} />
+          ) : id === 'tetris' ? (
+            <TetrisGame key={sessionKey} {...nativeProps} />
           ) : (
             <div className="game-arena">
               <div className="grid-floor" />
@@ -170,8 +174,8 @@ export default function PlayPage() {
             </div>
           )}
 
-          {/* Overlay de pausa (placeholder; ASTEROID dibuja PAUSA en canvas) */}
-          {!isAsteroid && paused && !gameOver && (
+          {/* Overlay de pausa (placeholder; juegos nativos dibujan PAUSA en canvas) */}
+          {!isNativeGame && paused && !gameOver && (
             <div style={{
               position: 'absolute', inset: 0, zIndex: 10,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
