@@ -49,7 +49,6 @@ const GAME_KEYS = new Set([
 
 export function createTetrisSession(cb: TetrisSessionCallbacks) {
   const keys: KeyMap = {}
-  const justPressed: KeyMap = {}
 
   let board = createBoard()
   let current: Piece = randomPiece()
@@ -58,11 +57,13 @@ export function createTetrisSession(cb: TetrisSessionCallbacks) {
   let lines = 0
   let level = 1
   let dropIntervalMs = INITIAL_DROP_MS
+  let dropAccumMs = 0
   let state: GameState = 'playing'
   let gameOverNotified = false
   let forceConsumed = false
 
   let rafId = 0
+  let lastTime: number | null = null
   let ctx: CanvasRenderingContext2D | null = null
 
   function notifyStats() {
@@ -103,6 +104,7 @@ export function createTetrisSession(cb: TetrisSessionCallbacks) {
     merge(board, current)
     applyClearLines()
     spawn()
+    dropAccumMs = 0
   }
 
   function softDrop() {
@@ -111,6 +113,7 @@ export function createTetrisSession(cb: TetrisSessionCallbacks) {
       current.y++
       score += 1
       notifyStats()
+      dropAccumMs = 0
     } else {
       lockPiece()
     }
@@ -137,18 +140,66 @@ export function createTetrisSession(cb: TetrisSessionCallbacks) {
     tryRotate(board, current)
   }
 
+  function gravityStep() {
+    if (state !== 'playing') return
+    if (!collide(board, current.shape, current.x, current.y + 1)) {
+      current.y++
+    } else {
+      lockPiece()
+    }
+  }
+
   function initGame() {
     board = createBoard()
     score = 0
     lines = 0
     level = 1
     dropIntervalMs = INITIAL_DROP_MS
+    dropAccumMs = 0
     state = 'playing'
     gameOverNotified = false
     forceConsumed = false
     next = randomPiece()
     spawn()
     notifyStats()
+  }
+
+  function handleGameKey(code: string) {
+    if (cb.getPaused() || state !== 'playing') return
+    switch (code) {
+      case 'ArrowLeft':
+        move(-1)
+        break
+      case 'ArrowRight':
+        move(1)
+        break
+      case 'ArrowDown':
+        softDrop()
+        break
+      case 'ArrowUp':
+      case 'KeyX':
+        rotate()
+        break
+      case 'Space':
+        hardDrop()
+        break
+    }
+  }
+
+  function update(dt: number) {
+    if (cb.getForceGameOver() && !forceConsumed && state !== 'gameover') {
+      forceConsumed = true
+      enterGameOver()
+    }
+
+    if (cb.getPaused() && state !== 'gameover') return
+    if (state === 'gameover') return
+
+    dropAccumMs += dt * 1000
+    if (dropAccumMs >= dropIntervalMs) {
+      dropAccumMs = 0
+      gravityStep()
+    }
   }
 
   function drawBlock(
@@ -222,6 +273,16 @@ export function createTetrisSession(cb: TetrisSessionCallbacks) {
     }
   }
 
+  function drawOverlay(c: CanvasRenderingContext2D, title: string, sub: string) {
+    c.textAlign = 'center'
+    c.fillStyle = '#fff'
+    c.font = 'bold 46px monospace'
+    c.fillText(title, W / 2, H / 2 - 18)
+    c.font = '18px monospace'
+    c.fillStyle = 'rgba(255,255,255,0.65)'
+    c.fillText(sub, W / 2, H / 2 + 22)
+  }
+
   function draw(c: CanvasRenderingContext2D) {
     c.fillStyle = '#000'
     c.fillRect(0, 0, W, H)
@@ -277,24 +338,34 @@ export function createTetrisSession(cb: TetrisSessionCallbacks) {
     }
 
     drawNext(c)
+
+    if (cb.getPaused() && state === 'playing') {
+      drawOverlay(c, 'PAUSA', '')
+    }
+    if (state === 'gameover') {
+      drawOverlay(c, 'GAME OVER', `PUNTAJE: ${score}`)
+    }
+  }
+
+  function loop(ts: number) {
+    const dt = lastTime === null ? 0 : Math.min((ts - lastTime) / 1000, 0.05)
+    lastTime = ts
+    update(dt)
+    if (ctx) draw(ctx)
+    rafId = requestAnimationFrame(loop)
   }
 
   function onKeyDown(e: KeyboardEvent) {
     if (!GAME_KEYS.has(e.code)) return
     if (cb.getAcceptInput()) e.preventDefault()
-    if (!keys[e.code]) justPressed[e.code] = true
     keys[e.code] = true
+    // Soft drop y repeats del SO: actuar en cada keydown (como la referencia).
+    handleGameKey(e.code)
   }
 
   function onKeyUp(e: KeyboardEvent) {
     if (!GAME_KEYS.has(e.code)) return
     keys[e.code] = false
-  }
-
-  function loop() {
-    // Paso 2: solo pinta estado. Auto-drop + input + overlays → Paso 3.
-    if (ctx) draw(ctx)
-    rafId = requestAnimationFrame(loop)
   }
 
   function start(canvas: HTMLCanvasElement) {
@@ -304,6 +375,7 @@ export function createTetrisSession(cb: TetrisSessionCallbacks) {
     initGame()
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup', onKeyUp)
+    lastTime = null
     rafId = requestAnimationFrame(loop)
   }
 
@@ -312,10 +384,8 @@ export function createTetrisSession(cb: TetrisSessionCallbacks) {
     window.removeEventListener('keydown', onKeyDown)
     window.removeEventListener('keyup', onKeyUp)
     for (const k of Object.keys(keys)) keys[k] = false
-    for (const k of Object.keys(justPressed)) justPressed[k] = false
     ctx = null
   }
 
-  // Acciones listas para cablear en Paso 3 (evita código muerto en el stub).
-  return { start, stop, softDrop, hardDrop, move, rotate }
+  return { start, stop }
 }
