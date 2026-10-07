@@ -14,9 +14,12 @@ import { FloatingSilhouettes } from './components/FloatingSilhouettes'
 import { FeatureIcon } from './components/FeatureIcon'
 import { MiniCard } from './components/MiniCard'
 import { useReveal } from './hooks/useReveal'
+import { useUser } from './providers'
 
 export default function Home() {
   useReveal()
+  const { user, ready } = useUser()
+  const showSignup = ready && !user
 
   return (
     <div className="home fade-in">
@@ -40,9 +43,11 @@ export default function Home() {
             <Link href="/biblioteca" className="btn xl pulse">
               ▶  EXPLORAR JUEGOS
             </Link>
-            <Link href="/auth" className="btn xl magenta">
-              ✦  CREAR CUENTA
-            </Link>
+            {showSignup && (
+              <Link href="/auth?tab=register" className="btn xl magenta">
+                ✦  CREAR CUENTA
+              </Link>
+            )}
           </div>
           <div className="hero-scroll" aria-hidden="true">
             <span>DESLIZA</span>
@@ -168,9 +173,11 @@ export default function Home() {
                 <li key={item}>{item}</li>
               ))}
             </ul>
-            <Link href="/auth" className="btn xl pulse" style={{ width: '100%' }}>
-              EMPEZAR GRATIS →
-            </Link>
+            {showSignup && (
+              <Link href="/auth" className="btn xl pulse" style={{ width: '100%' }}>
+                EMPEZAR GRATIS →
+              </Link>
+            )}
             <div className="pc-foot">No pedimos tarjeta. Nunca lo haremos.</div>
             <div className="pc-stamp pixel">
               FREE

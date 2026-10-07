@@ -2,20 +2,64 @@
 
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { User } from './data'
-
-const STORAGE_KEY = 'av_user'
+import { createClient } from '../lib/supabase/client'
 
 interface UserContextValue {
   user: User | null
-  login: (name: string) => void
-  logout: () => void
+  ready: boolean
+  logout: () => Promise<void>
 }
 
 const UserContext = createContext<UserContextValue>({
   user: null,
-  login: () => {},
-  logout: () => {},
+  ready: false,
+  logout: async () => {},
 })
+
+type SessionUser = {
+  email?: string | null
+  app_metadata?: { provider?: string; providers?: string[] }
+  user_metadata?: Record<string, unknown>
+}
+
+function toPlayer(authUser: SessionUser): User {
+  return {
+    name: displayName(authUser),
+    avatarUrl: providerAvatar(authUser),
+  }
+}
+
+function providerAvatar(authUser: SessionUser): string | undefined {
+  const providers = [
+    authUser.app_metadata?.provider,
+    ...(authUser.app_metadata?.providers ?? []),
+  ]
+  const usesPhoto = providers.includes('google') || providers.includes('github')
+  if (!usesPhoto) return undefined
+  const meta = authUser.user_metadata ?? {}
+  for (const candidate of [meta.avatar_url, meta.picture]) {
+    if (typeof candidate === 'string' && candidate.startsWith('https://')) return candidate
+  }
+  return undefined
+}
+
+function displayName(authUser: SessionUser): string {
+  const meta = authUser.user_metadata ?? {}
+  const candidates = [
+    meta.display_name,
+    meta.preferred_username,
+    meta.user_name,
+    meta.full_name,
+    meta.name,
+  ]
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim().slice(0, 10).toUpperCase()
+    }
+  }
+  const local = authUser.email?.split('@')[0] ?? ''
+  return local.slice(0, 10).toUpperCase()
+}
 
 export function useUser() {
   return useContext(UserContext)
@@ -23,30 +67,44 @@ export function useUser() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [ready, setReady] = useState(false)
 
-  // Leer desde localStorage solo en el cliente (evita errores SSR)
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) setUser(JSON.parse(raw))
-    } catch {
-      // localStorage no disponible o JSON inválido
+    const supabase = createClient()
+    let active = true
+
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!active) return
+      const sessionUser = data.session?.user
+      setUser(sessionUser ? toPlayer(sessionUser) : null)
+      if (!sessionUser) return
+      const { data: fresh } = await supabase.auth.getUser()
+      if (!active || !fresh.user) return
+      setUser(toPlayer(fresh.user))
+    }).finally(() => {
+      if (active) setReady(true)
+    })
+
+    const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return
+      setUser(session?.user ? toPlayer(session.user) : null)
+      setReady(true)
+    })
+
+    return () => {
+      active = false
+      subscription.subscription.unsubscribe()
     }
   }, [])
 
-  function login(name: string) {
-    const u: User = { name: name.slice(0, 10).toUpperCase() }
-    setUser(u)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(u))
-  }
-
-  function logout() {
+  async function logout() {
+    const supabase = createClient()
+    await supabase.auth.signOut()
     setUser(null)
-    localStorage.removeItem(STORAGE_KEY)
   }
 
   return (
-    <UserContext.Provider value={{ user, login, logout }}>
+    <UserContext.Provider value={{ user, ready, logout }}>
       {children}
     </UserContext.Provider>
   )
