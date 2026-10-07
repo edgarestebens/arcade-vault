@@ -1,6 +1,6 @@
 # SPEC 08 — Registro, login y autenticación
 
-> **Estado:** Aprobado
+> **Estado:** Implementado 
 > **Depende de:** SPEC 01, SPEC 04
 > **Fecha:** 2026-10-06
 > **Objetivo:** Sustituir el acceso falso de `localStorage` por Supabase Auth con email y contraseña, confirmación de correo y restablecimiento de contraseña, sin cerrar las rutas ni vincular los scores.

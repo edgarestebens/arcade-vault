@@ -19,4 +19,5 @@ export interface ScoreRow {
 
 export interface User {
   name: string        // máximo 10 caracteres, mayúsculas
+  avatarUrl?: string  // foto de Google o GitHub
 }
