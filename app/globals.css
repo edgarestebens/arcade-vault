@@ -166,13 +166,14 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid rgba(255,255,255,0.18);
 }
 .av-nav .logo-text { font-family: var(--pixel); font-size: 12px; letter-spacing: 0.12em; }
-.av-nav .links { display: flex; gap: 4px; margin-left: 32px; }
+.av-nav .links { display: flex; gap: 2px; margin-left: 16px; }
 .av-nav .links a {
   position: relative;
-  padding: 10px 14px;
+  padding: 10px 8px;
   font-family: var(--pixel);
   font-size: 9px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
   color: var(--ink-dim);
   cursor: pointer;
   transition: color 120ms;
@@ -1344,6 +1345,109 @@ a { color: inherit; text-decoration: none; }
 /* tweaks */
 .tw-section { margin-bottom: 14px; }
 .tw-label { font-family: var(--pixel); font-size: 9px; color: var(--ink-faint); letter-spacing: 0.14em; margin-bottom: 8px; }
+
+/* ===== pokedex counter ===== */
+.dex {
+  min-height: calc(100vh - 180px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 20px 72px;
+}
+.dex-cabinet {
+  width: min(100%, 440px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+}
+.dex-count {
+  margin: 0;
+  font-family: var(--pixel);
+  font-size: clamp(40px, 8vw, 64px);
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  color: var(--yellow);
+  text-shadow: 0 0 10px rgba(245, 255, 0, 0.55);
+}
+.dex-stage {
+  width: min(100%, 320px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 42%, #fff 0 58%, #f3f4f8 72%, #d5d9e4 100%);
+  box-shadow:
+    0 0 0 10px #ee1515,
+    0 0 0 14px #141414,
+    0 18px 40px rgba(0, 0, 0, 0.45);
+}
+.dex-art {
+  width: 78%;
+  height: auto;
+  object-fit: contain;
+  animation: dex-swap 280ms ease;
+}
+.dex-missing {
+  margin: 0;
+  max-width: 16ch;
+  color: #3a3f55;
+  font-size: 14px;
+  line-height: 1.45;
+}
+@keyframes dex-swap {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dex-art { animation: none; }
+}
+.dex-name {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.dex-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.dex-prev:focus-visible,
+.dex-next:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 4px;
+}
+.dex-next {
+  appearance: none;
+  border: 0;
+  min-width: 148px;
+  height: 56px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: #ee1515;
+  color: #fff;
+  font-family: var(--pixel);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  box-shadow: 0 6px 0 #9b0c0c;
+}
+.dex-next:hover { background: #ff2a2a; }
+.dex-next:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #9b0c0c;
+}
+.dex-note {
+  margin: 0;
+  max-width: 36ch;
+  color: var(--ink-dim);
+  font-size: 14px;
+  line-height: 1.55;
+}
 
 /* spinner */
 .spinner {

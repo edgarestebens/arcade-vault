@@ -17,6 +17,7 @@ export function Nav() {
     pathname === '/biblioteca' || pathname.startsWith('/games/')
   const isSalon = pathname === '/hall-of-fame'
   const isAbout = pathname === '/about'
+  const isPokedex = pathname === '/pokedex'
   const isAuth = pathname === '/auth'
 
   useEffect(() => {
@@ -56,6 +57,9 @@ export function Nav() {
           </Link>
           <Link href="/about" className={isAbout ? 'active' : ''}>
             Acerca de
+          </Link>
+          <Link href="/pokedex" className={isPokedex ? 'active' : ''}>
+            Pokédex
           </Link>
         </div>
 
@@ -133,6 +137,13 @@ export function Nav() {
           onClick={() => setMenuOpen(false)}
         >
           Acerca de
+        </Link>
+        <Link
+          href="/pokedex"
+          className={isPokedex ? 'active' : ''}
+          onClick={() => setMenuOpen(false)}
+        >
+          Pokédex
         </Link>
         {ready && user && (
           <div className="pixel neon-cyan" style={{ fontSize: 11, marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
