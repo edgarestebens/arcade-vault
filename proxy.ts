@@ -1,6 +1,19 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const securityHeaders: ReadonlyArray<readonly [string, string]> = [
+  ["X-Content-Type-Options", "nosniff"],
+  ["X-Frame-Options", "DENY"],
+  ["Referrer-Policy", "strict-origin-when-cross-origin"],
+];
+
+function withSecurityHeaders(response: NextResponse) {
+  for (const [key, value] of securityHeaders) {
+    response.headers.set(key, value);
+  }
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -30,9 +43,32 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  return supabaseResponse;
+  // "Sin sesión" no es un fallo: getUser() devuelve AuthSessionMissingError.
+  // Cualquier otro error (red, servidor) deja la sesión indeterminada: no se redirige.
+  const sessionKnown = Boolean(user) || !userError || userError.name === "AuthSessionMissingError";
+
+  if (sessionKnown) {
+    const hasSession = Boolean(user);
+    const { pathname } = request.nextUrl;
+
+    let target: string | null = null;
+    if (hasSession && pathname === "/auth") target = "/";
+    else if (!hasSession && pathname === "/auth/reset") target = "/auth";
+
+    if (target) {
+      const redirect = NextResponse.redirect(new URL(target, request.url));
+      // Conserva las cookies de sesión que el refresh haya renovado.
+      supabaseResponse.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+      return withSecurityHeaders(redirect);
+    }
+  }
+
+  return withSecurityHeaders(supabaseResponse);
 }
 
 export const config = {

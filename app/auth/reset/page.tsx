@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '../../../lib/supabase/client'
+import { isStrongPassword, PASSWORD_RULE_MESSAGE } from '../../../lib/auth/password'
 import { useUser } from '../../providers'
 
 const INVALID_LINK = 'EL ENLACE NO ES VÁLIDO O YA CADUCÓ'
@@ -20,6 +21,10 @@ export default function ResetPage() {
     e.preventDefault()
     if (pending || !user) return
     setError(null)
+    if (!isStrongPassword(password)) {
+      setError(PASSWORD_RULE_MESSAGE)
+      return
+    }
     setPending(true)
     try {
       const supabase = createClient()
