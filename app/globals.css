@@ -190,7 +190,34 @@ a { color: inherit; text-decoration: none; }
 .av-nav .spacer { flex: 1; }
 .av-nav .coin-counter { display: flex; align-items: center; gap: 8px; font-family: var(--pixel); font-size: 9px; color: var(--yellow); }
 .av-nav .coin-counter .coin { width: 14px; height: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff8b0, #f5ff00 60%, #b0b800); box-shadow: 0 0 8px var(--yellow); }
-.av-nav .auth-btn { margin-left: 16px; }
+.av-nav .nav-session {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 16px;
+}
+.av-nav .player {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.av-nav .player-avatar,
+.av-mobile-panel .player-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--cyan);
+  box-shadow: 0 0 8px rgba(0,245,255,0.55);
+}
+.av-nav .player-name {
+  font-family: var(--pixel);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--cyan);
+  text-shadow: 0 0 8px rgba(0,245,255,0.65);
+  white-space: nowrap;
+}
 .av-nav .hamburger { display: none; }
 
 @media (max-width: 840px) {

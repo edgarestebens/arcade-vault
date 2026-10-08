@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useUser } from '../providers'
+import { closeWait } from './wait'
 
 export function Nav() {
   const pathname = usePathname()
   const router = useRouter()
-  const { user, logout } = useUser()
+  const { user, ready, logout } = useUser()
   const [menuOpen, setMenuOpen] = useState(false)
 
   const isInicio = pathname === '/'
@@ -18,8 +19,12 @@ export function Nav() {
   const isAbout = pathname === '/about'
   const isAuth = pathname === '/auth'
 
-  function handleLogout() {
-    logout()
+  useEffect(() => {
+    closeWait()
+  }, [pathname])
+
+  async function handleLogout() {
+    await logout()
     setMenuOpen(false)
   }
 
@@ -61,14 +66,26 @@ export function Nav() {
           <span>CRÉDITOS · 03</span>
         </div>
 
-        {user ? (
-          <button className="btn ghost auth-btn" onClick={handleLogout} title="Cerrar sesión">
-            {user.name} ▾
-          </button>
-        ) : (
-          <Link href="/auth" className="btn auth-btn">
-            Iniciar Sesión
-          </Link>
+        {ready && (
+          <div className="nav-session">
+            {user && (
+              <span className="player">
+                {user.avatarUrl && (
+                  <img className="player-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
+                )}
+                <span className="player-name">{user.name}</span>
+              </span>
+            )}
+            {user ? (
+              <button className="btn ghost auth-btn" type="button" onClick={handleLogout}>
+                Cerrar sesión
+              </button>
+            ) : (
+              <Link href="/auth" className="btn auth-btn">
+                Iniciar sesión
+              </Link>
+            )}
+          </div>
         )}
 
         <button
@@ -117,13 +134,27 @@ export function Nav() {
         >
           Acerca de
         </Link>
-        <Link
-          href="/auth"
-          className={isAuth ? 'active' : ''}
-          onClick={() => setMenuOpen(false)}
-        >
-          {user ? 'Cuenta' : 'Iniciar Sesión'}
-        </Link>
+        {ready && user && (
+          <div className="pixel neon-cyan" style={{ fontSize: 11, marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+            {user.avatarUrl && (
+              <img className="player-avatar" src={user.avatarUrl} alt="" referrerPolicy="no-referrer" />
+            )}
+            {user.name}
+          </div>
+        )}
+        {ready && (user ? (
+          <button type="button" className="btn ghost" onClick={handleLogout}>
+            Cerrar sesión
+          </button>
+        ) : (
+          <Link
+            href="/auth"
+            className={isAuth ? 'active' : ''}
+            onClick={() => setMenuOpen(false)}
+          >
+            Iniciar sesión
+          </Link>
+        ))}
         <div style={{ flex: 1 }} />
         <div
           className="pixel"
