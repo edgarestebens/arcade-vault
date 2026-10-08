@@ -3,6 +3,8 @@
 import { use, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '../../lib/supabase/client'
+import { isStrongPassword, PASSWORD_RULE_MESSAGE } from '../../lib/auth/password'
+import { SIGNUP_RATE_MESSAGE } from '../../lib/auth/signup-rate-limit'
 import { useUser } from '../providers'
 import { closeWait, openWait } from '../components/wait'
 
@@ -59,10 +61,13 @@ export default function AuthPage({
     e.preventDefault()
     if (pending) return
     setError(null)
+    if (!isStrongPassword(password)) {
+      setError(PASSWORD_RULE_MESSAGE)
+      return
+    }
     setBusy(tab === 'login' ? 'login' : 'register')
     openWait()
     const supabase = createClient()
-    const origin = window.location.origin
     let keepBusy = false
 
     try {
@@ -82,25 +87,29 @@ export default function AuthPage({
 
       const displayName = name.trim().slice(0, 10).toUpperCase()
       if (!displayName) return
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password,
-        options: {
-          data: { display_name: displayName },
-          emailRedirectTo: `${origin}/auth/callback`,
-        },
+      const res = await fetch('/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          display_name: displayName,
+        }),
       })
-      if (signUpError) {
-        setError(authErrorMessage(signUpError))
-        return
-      }
-      if (data.user && data.user.identities?.length === 0) {
+      const { status } = (await res.json()) as { status?: string }
+
+      if (status === 'confirm_email') {
+        blockRedirect.current = true
+        setNotice(CONFIRM_NOTICE)
+      } else if (status === 'email_taken') {
         setError('ESE EMAIL YA TIENE CUENTA')
-        return
+      } else if (status === 'weak_password') {
+        setError(PASSWORD_RULE_MESSAGE)
+      } else if (status === 'rate_limited') {
+        setError(SIGNUP_RATE_MESSAGE)
+      } else {
+        setError(GENERIC_ERROR)
       }
-      blockRedirect.current = true
-      if (data.session) await supabase.auth.signOut()
-      setNotice(CONFIRM_NOTICE)
     } catch {
       setError(GENERIC_ERROR)
     } finally {

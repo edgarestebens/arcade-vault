@@ -1,6 +1,6 @@
 # SPEC 09 — Checklist de seguridad
 
-> **Estado:** Aprobado
+> **Estado:** Impelemntado
 > **Depende de:** SPEC 04, SPEC 06, SPEC 08
 > **Fecha:** 2026-10-08
 > **Objetivo:** Cerrar el checklist de seguridad: RLS con inserción anónima acotada, contraseña fuerte en formularios y en Auth, cinco registros por IP en la app, headers y protección de rutas en el proxy, y revocar `rls_auto_enable`.
