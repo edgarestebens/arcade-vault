@@ -3,6 +3,7 @@
 import { use, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '../../lib/supabase/client'
+import { isStrongPassword, PASSWORD_RULE_MESSAGE } from '../../lib/auth/password'
 import { useUser } from '../providers'
 import { closeWait, openWait } from '../components/wait'
 
@@ -59,6 +60,10 @@ export default function AuthPage({
     e.preventDefault()
     if (pending) return
     setError(null)
+    if (!isStrongPassword(password)) {
+      setError(PASSWORD_RULE_MESSAGE)
+      return
+    }
     setBusy(tab === 'login' ? 'login' : 'register')
     openWait()
     const supabase = createClient()
