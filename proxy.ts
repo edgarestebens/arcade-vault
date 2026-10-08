@@ -1,6 +1,19 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+const securityHeaders: ReadonlyArray<readonly [string, string]> = [
+  ["X-Content-Type-Options", "nosniff"],
+  ["X-Frame-Options", "DENY"],
+  ["Referrer-Policy", "strict-origin-when-cross-origin"],
+];
+
+function withSecurityHeaders(response: NextResponse) {
+  for (const [key, value] of securityHeaders) {
+    response.headers.set(key, value);
+  }
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -32,7 +45,7 @@ export async function proxy(request: NextRequest) {
 
   await supabase.auth.getUser();
 
-  return supabaseResponse;
+  return withSecurityHeaders(supabaseResponse);
 }
 
 export const config = {
